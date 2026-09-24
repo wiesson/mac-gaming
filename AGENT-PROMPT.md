@@ -1,10 +1,10 @@
 # Optional prompts for troubleshooting
 
-[Back to the Diablo IV guide](README.md)
+[Back to the Diablo IV profile](profiles/diablo-iv/README.md)
 
-You do not need an AI assistant to follow the guide. If you use one to investigate
-an issue, these prompts keep the scope clear. Replace the bracketed details with
-your setup and share only the relevant, sanitized error excerpt.
+These older prompts are for focused troubleshooting. For a full setup, start with
+the repository's `AGENTS.md` and the selected game profile. Replace the bracketed
+details with your setup and share only the relevant, sanitized error excerpt.
 
 ## Help me configure Diablo IV on my Mac
 
@@ -17,7 +17,7 @@ Wine wrapper and engine: [name and exact version]
 Current state: [not installed / launcher opens / login works / game opens]
 Problem: [what I see]
 
-Read this repository's README and docs/setup.md. Compare my actual configuration
+Read this repository's AGENTS.md and profiles/diablo-iv/README.md. Compare my actual configuration
 with the tested setup before suggesting changes. Explain one next step at a time.
 Keep my existing game download and account data intact. Use a separate prefix for
 engine experiments, and do not restart a running game without checking with me.

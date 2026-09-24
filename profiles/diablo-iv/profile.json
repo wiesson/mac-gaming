@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "slug": "diablo-iv",
+  "name": "Diablo IV",
+  "store": "Battle.net",
+  "status": "gameplay-verified-on-one-mac",
+  "runner": {
+    "kind": "custom-wine",
+    "summary": "Matched GameToMac Wine 11 based engine and renderer bundle"
+  },
+  "tested": {
+    "date": "2026-09-17",
+    "mac": "M3 Max, 48 GB memory",
+    "macos": "27.0",
+    "result": "Battle.net login, Diablo IV gameplay, and Bluetooth audio verified; no benchmark"
+  }
+}

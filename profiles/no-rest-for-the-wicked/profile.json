@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "slug": "no-rest-for-the-wicked",
+  "name": "No Rest for the Wicked",
+  "store": "Steam for Windows",
+  "status": "gameplay-verified-on-one-mac",
+  "runner": {
+    "kind": "sikarugir",
+    "app_name": "No Rest for the Wicked (Wine).app",
+    "wine_version": "wine-10.0 (Sikarugir)",
+    "d3dmetal": true,
+    "msync": true
+  },
+  "steam": {
+    "app_id": 1371980,
+    "install_dir": "NoRestForTheWicked",
+    "launch_options": "-force-d3d11 -screen-fullscreen 0 -screen-width 1280 -screen-height 720",
+    "overlay_enabled": false
+  },
+  "tested": {
+    "date": "2026-09-24",
+    "mac": "M3 Max, 48 GB memory",
+    "macos": "27.0",
+    "result": "Steam sign-in, game login, gameplay, exit code 0, and Steam Cloud upload OK; controller not tested"
+  }
+}

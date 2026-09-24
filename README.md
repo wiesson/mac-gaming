@@ -1,62 +1,37 @@
-# Diablo IV on Apple Silicon
+# Mac gaming on Apple Silicon
 
-A practical guide to getting **Diablo IV through Battle.net** running smoothly on
-your Mac — from a working launcher to your first game, graphics settings, and sound.
+Tested game profiles and instructions for an AI coding agent to set up Windows games on a Mac. The agent inspects the actual machine, follows one profile, performs the reversible setup, and checks the result with the player. **You supply your own game license and sign in yourself.** This repository contains no game, Wine, Apple toolkit, or account binaries.
 
-This started with an evening of getting Diablo IV running on an M3 Max. Battle.net
-would open with one Wine setup, while the game would run with another. We eventually
-got both working together, including account login, gameplay, and Bluetooth audio.
-These are the settings and lessons worth sharing.
+## Profiles
 
-**Verified on September 17, 2026:** M3 Max (40-core GPU, 48 GB memory), macOS 27.0,
-Battle.net build 17778, Diablo IV 3.2.1.73552. Gameplay felt very smooth; we have not
-recorded a benchmark or tested other Macs.
+| Game | Store | Tested route | Guide |
+|---|---|---|---|
+| No Rest for the Wicked | Steam | Free Sikarugir wrapper, Wine 10, D3DMetal, Windows Steam | [Profile](profiles/no-rest-for-the-wicked/README.md) |
+| Diablo IV | Battle.net | Custom Wine 11 based runtime, D3DMetal for the game and DXMT for Battle.net | [Profile](profiles/diablo-iv/README.md) |
 
-## Start here
+Both are observations from one M3 Max running macOS 27.0. They are starting points, not compatibility promises or FPS benchmarks.
 
-1. **[Set up Battle.net and launch Diablo IV](docs/setup.md)** — what you need,
-   the working configuration, and how to check that both apps use it.
-2. **[Find comfortable graphics and audio settings](docs/settings.md)** — start
-   with a stable baseline, then tune for your display.
-3. **[Fix a problem](docs/troubleshooting.md)** — launcher crashes, “Playing Now”
-   without a game window, login errors, or missing headphone audio.
+## Agent-first setup
 
-You will need your own Diablo IV license and a Wine wrapper with compatible graphics
-components. This repository is a configuration guide, not a game download or an
-automatic installer. The [tested components](docs/setup.md#the-tested-setup)
-are documented so you can compare your setup before changing it.
-
-## The setting that got our launcher working
-
-In our CrossOver-derived Wine build, Battle.net's login window needed this
-environment variable:
+Clone this repository into your Games folder:
 
 ```sh
-WINE_SIMULATE_WRITECOPY=1
+git clone https://github.com/wiesson/mac-gaming.git "$HOME/Games/mac-gaming"
+cd "$HOME/Games/mac-gaming"
+python3 tools/mac_gaming.py list
+python3 tools/mac_gaming.py doctor no-rest-for-the-wicked
 ```
 
-Add it to the configuration that **launches Battle.net**. It is a Wine setting, not
-a Diablo IV command-line argument. It fixes the particular launcher crash we
-diagnosed; the game still needs a compatible Wine engine and D3DMetal setup.
-The [setup guide](docs/setup.md#configure-the-launcher) explains where it belongs.
+Then ask your coding agent:
 
-## A few things that made the difference
+> Read `AGENTS.md` and `profiles/no-rest-for-the-wicked/README.md`. Set up my Steam copy of No Rest for the Wicked on this Mac. Inspect existing installations first, keep working prefixes and saves intact, and verify the game with me.
 
-- Launch the game through the configured **Battle.net**, so it receives your login.
-- Use **D3DMetal for Diablo IV** and a matching **32-bit DXMT for Battle.net**.
-- Keep the working Wine engine and its matching components together.
-- Connect Bluetooth headphones **before starting the game**.
-- Get into the game first; adjust graphics one setting at a time afterward.
+For Diablo IV, replace the profile path with `profiles/diablo-iv/README.md`. `doctor` reads local files only. It does not install software or send diagnostics anywhere. An agent can use the profile's exact source links and checks to perform the setup; account login and license agreement decisions stay with you.
 
-## Interested in the Wine fix?
+## How profiles work
 
-The launcher bug that led to this guide involved how Wine reports memory protection.
-You do not need to understand that detail to follow the guide.
+Each game has a `profiles/<slug>/profile.json` for machine-readable identity and a `README.md` with the verified setup, source versions, steps, checks, and limits. The [agent instructions](AGENTS.md) define the shared workflow. Run `python3 tools/mac_gaming.py validate` after editing profiles.
 
-The [technical write-up](docs/technical-notes.md) preserves the diagnosis and
-verification. The small utilities in [`tools/`](tools/) and the optional
-[troubleshooting prompts](AGENT-PROMPT.md) are for deeper investigation.
+The [existing Diablo IV notes](docs/setup.md) and [technical investigation](docs/technical-notes.md) remain available. Its runtime is a matched custom bundle, so its profile deliberately does not claim a one-command clean install.
 
-Documentation and included tools: [MIT license](LICENSE). Wine, Apple graphics
-components, Battle.net, and Diablo IV are separate projects with their own licenses;
-their binaries and account data are not included here.
+Documentation and included tools: [MIT license](LICENSE). Wine, Sikarugir, Apple's D3DMetal, Steam, Battle.net, and games have their own licenses.
