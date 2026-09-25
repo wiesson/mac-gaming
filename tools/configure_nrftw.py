@@ -56,9 +56,13 @@ def steam_values(text: str) -> tuple[str | None, str | None]:
     return value("EnableGameOverlay"), value("LaunchOptions")
 
 
-def set_steam_values(text: str) -> str:
+def set_steam_values(text: str, overlay: str | None = None) -> str:
     start, end, indent = app_block(text)
     block = text[start:end]
+    current_overlay, _ = steam_values(text)
+    overlay_value = overlay if overlay is not None else (current_overlay or "0")
+    if overlay_value not in {"0", "1"}:
+        raise ValueError("overlay must be 0 or 1")
     newline = "\r\n" if "\r\n" in text else "\n"
     block = re.sub(
         r'(?m)^[ \t]*"(?:EnableGameOverlay|LaunchOptions)"[ \t]*"[^"\r\n]*"[^\r\n]*(?:\r?\n)?',
@@ -68,7 +72,7 @@ def set_steam_values(text: str) -> str:
     child_indent = indent + "\t"
     updated = (
         newline
-        + child_indent + '"EnableGameOverlay"\t\t"0"' + newline
+        + child_indent + '"EnableGameOverlay"\t\t"' + overlay_value + '"' + newline
         + child_indent + '"LaunchOptions"\t\t"' + LAUNCH_OPTIONS + '"' + newline
         + block.lstrip("\r\n")
     )
@@ -143,6 +147,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--app", type=Path, required=True, help="Sikarugir game .app path")
     parser.add_argument("--steam-user", help="Steam userdata directory name if several accounts exist")
+    parser.add_argument("--overlay", choices=("on", "off"), help="set the game-specific Steam Overlay; otherwise keep its current setting")
     parser.add_argument("--apply", action="store_true", help="Back up and write the tested settings")
     args = parser.parse_args()
     app = args.app.expanduser().resolve()
@@ -177,6 +182,8 @@ def main() -> None:
     reg_text = reg_path.read_text() if reg_path.is_file() else None
     settings = device_settings(reg_text) if reg_text else None
     print("LockedCursor:", settings.get("LockedCursor") if settings else "not created yet")
+    if args.overlay:
+        print("Requested game overlay:", args.overlay, "(only changed with --apply)")
     if not args.apply:
         print("Read-only check. Use --apply after quitting this wrapper.")
         return
@@ -191,7 +198,10 @@ def main() -> None:
     if save_with_backup(plist_path, plistlib.dumps(plist)):
         print("Updated wrapper configuration")
     if config_path and original_config is not None:
-        updated = set_steam_values(original_config)
+        updated = set_steam_values(
+            original_config,
+            {"on": "1", "off": "0"}.get(args.overlay),
+        )
         if save_with_backup(config_path, updated.encode()):
             print("Updated Steam game settings")
     if reg_text and settings:
