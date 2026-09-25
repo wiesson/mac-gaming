@@ -70,4 +70,10 @@ Start the wrapper. Steam should launch the game with the saved DX11 flags. In th
 3. For a controller, first pair it in macOS (USB or Bluetooth), then check **Steam > Settings > Controller** in this Windows Steam client and test in game. The [Steam game page](https://store.steampowered.com/app/1371980/No_Rest_for_the_Wicked/) lists Xbox and PlayStation controllers and recommends controller play. Controller passthrough in this Wine profile is not yet verified.
 4. If the game feels faster than a prior setup, compare the same scene and resolution with an FPS or frame-time counter. A 1280×720 window is less demanding than a larger one; do not attribute the difference to Wine without a controlled comparison.
 
-Steam often stays open after the game exits. Quit Steam separately. Never kill Wine while the game is saving or Steam Cloud is syncing. Keep the tested DX11 and renderer settings until a specific problem justifies another change.
+Steam often stays open after the game exits. Closing its window or quitting the macOS wrapper may leave the Windows Steam process running; Steam can then recreate its window. After Steam Cloud reports completion, use **Steam > Exit** inside the Windows client. If that only closes the window, run the tested graceful shutdown command from this repository:
+
+```sh
+python3 tools/quit_nrftw_steam.py
+```
+
+The helper refuses to run while the game is active and asks Steam itself to shut down; it does not kill Wine. On September 25, 2026, this stopped the persistent Steam process and it stayed stopped. Keep the tested DX11 and renderer settings until a specific problem justifies another change.
