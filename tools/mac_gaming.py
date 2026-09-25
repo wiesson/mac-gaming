@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """List, validate, and inspect local mac-gaming profiles (read-only)."""
 
+from __future__ import annotations
+
 import argparse
 import json
 import platform
 from pathlib import Path
 import plistlib
+import re
 import shutil
 import subprocess
 import sys
@@ -15,6 +18,32 @@ from configure_nrftw import device_settings, steam_values
 
 ROOT = Path(__file__).resolve().parent.parent
 PROFILES = ROOT / "profiles"
+GAME_LAUNCH = re.compile(
+    r'^\[([^]]+)\] AppID 1371980 adding PID (\d+) as a tracked process .*NoRestForTheWicked\.exe'
+)
+GAME_EXIT = re.compile(
+    r'^\[([^]]+)\] AppID 1371980 no longer tracking PID (\d+), exit code (-?\d+)'
+)
+CLOUD_UPLOAD = re.compile(
+    r'^\[([^]]+)\] \[AppID 1371980\] Upload complete, result OK'
+)
+
+
+def recent_game_exits(log: str, count: int = 3) -> list[tuple[str, int]]:
+    game_pids = set()
+    exits = []
+    for line in log.splitlines():
+        if match := GAME_LAUNCH.search(line):
+            game_pids.add(match.group(2))
+        elif (match := GAME_EXIT.search(line)) and match.group(2) in game_pids:
+            exits.append((match.group(1), int(match.group(3))))
+            game_pids.remove(match.group(2))
+    return exits[-count:]
+
+
+def latest_cloud_upload(log: str) -> str | None:
+    matches = [match.group(1) for line in log.splitlines() if (match := CLOUD_UPLOAD.search(line))]
+    return matches[-1] if matches else None
 
 
 def load_profiles() -> dict[str, dict]:
@@ -74,6 +103,19 @@ def doctor_nrf(profile: dict, games_dir: Path) -> None:
     reg = prefix / "user.reg"
     settings = device_settings(reg.read_text()) if reg.is_file() else None
     print("  LockedCursor:", settings.get("LockedCursor") if settings else "not created yet")
+    logs = steam / "logs"
+    game_log = logs / "gameprocess_log.txt"
+    if game_log.is_file():
+        exits = recent_game_exits(game_log.read_text(errors="replace"))
+        for date, code in exits:
+            detail = " (Windows access violation)" if code == -1073741819 else ""
+            print(f"  Game exit: {date}, code {code}{detail}")
+        if not exits:
+            print("  Game exit: none recorded")
+    cloud_log = logs / "cloud_log.txt"
+    if cloud_log.is_file():
+        upload = latest_cloud_upload(cloud_log.read_text(errors="replace"))
+        print("  Last successful Cloud upload:", upload or "none recorded")
 
 
 def main() -> int:

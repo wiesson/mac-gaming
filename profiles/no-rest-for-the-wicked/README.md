@@ -66,7 +66,7 @@ Start the wrapper. Steam should launch the game with the saved DX11 flags. In th
 ## Verify and tune
 
 1. Confirm the game reaches the menu and gameplay, accepts mouse and keyboard, and has sound. Check that the cursor can leave the window after `LockedCursor=false` is applied.
-2. Exit through the game menu. In Steam's `logs/gameprocess_log.txt`, look for removal of AppID 1371980 with exit code 0. In `logs/cloud_log.txt`, look for `Upload complete, result OK` before closing Steam.
+2. Exit through the game menu. Run `python3 tools/mac_gaming.py doctor no-rest-for-the-wicked` to see the last three game exit codes and the last successful Steam Cloud upload. A code of `0` is a clean exit; `-1073741819` is a Windows access violation and needs investigation if it keeps recurring. The report reads the local Steam logs without printing save paths or account details.
 3. For a controller, first pair it in macOS (USB or Bluetooth), then check **Steam > Settings > Controller** in this Windows Steam client and test in game. The [Steam game page](https://store.steampowered.com/app/1371980/No_Rest_for_the_Wicked/) lists Xbox and PlayStation controllers and recommends controller play. Controller passthrough in this Wine profile is not yet verified.
 4. If the game feels faster than a prior setup, compare the same scene and resolution with an FPS or frame-time counter. A 1280×720 window is less demanding than a larger one; do not attribute the difference to Wine without a controlled comparison.
 
