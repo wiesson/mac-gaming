@@ -15,12 +15,13 @@
     "app_id": 1371980,
     "install_dir": "NoRestForTheWicked",
     "launch_options": "-force-d3d11 -screen-fullscreen 0 -screen-width 1280 -screen-height 720",
-    "overlay_enabled": false
+    "overlay_enabled": true,
+    "steam_input_override": "disabled"
   },
   "tested": {
-    "date": "2026-09-24",
+    "date": "2026-09-25",
     "mac": "M3 Max, 48 GB memory",
     "macos": "27.0",
-    "result": "Steam sign-in, game login, gameplay, exit code 0, and Steam Cloud upload OK; controller not tested"
+    "result": "Steam sign-in, game login, gameplay, exit code 0, and Steam Cloud upload OK; Switch Pro Controller input worked in game after disabling Steam Input for this title"
   }
 }
