@@ -7,9 +7,10 @@ Tested game profiles and instructions for an AI coding agent to set up Windows g
 | Game | Store | Tested route | Guide |
 |---|---|---|---|
 | No Rest for the Wicked | Steam | Free Sikarugir wrapper, Wine 10, D3DMetal, Windows Steam | [Profile](profiles/no-rest-for-the-wicked/README.md) |
+| STAR WARS Zero Company | Steam | Free Sikarugir wrapper, Wine 11, D3DMetal 4.0b3 (DX12), Windows Steam, native VC++ DLLs | [Profile](profiles/star-wars-zero-company/README.md) |
 | Diablo IV | Battle.net | Custom Wine 11 based runtime, D3DMetal for the game and DXMT for Battle.net | [Profile](profiles/diablo-iv/README.md) |
 
-Both are observations from one M3 Max running macOS 27.0. They are starting points, not compatibility promises or FPS benchmarks.
+All are observations from one M3 Max (macOS 27.0, Zero Company on 27.2.1). Zero Company is still in test: a clean exit and Cloud upload are not yet confirmed. They are starting points, not compatibility promises or FPS benchmarks.
 
 ## Agent-first setup
 

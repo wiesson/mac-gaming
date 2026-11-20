@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Ask Windows Steam in the No Rest for the Wicked wrapper to exit cleanly."""
+"""Ask Windows Steam in a Sikarugir game wrapper to exit cleanly."""
 
 import argparse
 import os
@@ -19,6 +19,11 @@ def processes() -> list[str]:
     return output.splitlines()
 
 
+def is_steam(line: str) -> bool:
+    # Wine reports the path as launched: Steam.exe or steam.exe.
+    return line.strip().lower().endswith("\\steam\\steam.exe")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -36,9 +41,9 @@ def main() -> int:
         raise SystemExit("Wine or Windows Steam is missing from this wrapper")
 
     running = processes()
-    if any("NoRestForTheWicked.exe" in line for line in running):
-        raise SystemExit("The game is running. Exit it and wait for Steam Cloud first")
-    if not any(line.endswith("\\Steam\\Steam.exe") for line in running):
+    if any("\\steamapps\\common\\" in line.lower() for line in running):
+        raise SystemExit("A game is running. Exit it and wait for Steam Cloud first")
+    if not any(is_steam(line) for line in running):
         print("Steam is already stopped")
         return 0
 
@@ -69,7 +74,7 @@ def main() -> int:
         print("Steam shutdown command failed", file=sys.stderr)
         return result.returncode
     for _ in range(20):
-        if not any(line.endswith("\\Steam\\Steam.exe") for line in processes()):
+        if not any(is_steam(line) for line in processes()):
             print("Steam stopped")
             return 0
         time.sleep(1)

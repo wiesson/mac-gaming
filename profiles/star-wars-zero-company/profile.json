@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "slug": "star-wars-zero-company",
+  "name": "STAR WARS Zero Company",
+  "store": "Steam for Windows",
+  "status": "in-test",
+  "runner": {
+    "kind": "sikarugir",
+    "app_name": "STAR WARS Zero Company (Wine).app",
+    "template": "1.0.27",
+    "wine_version": "wine-11.0 revision 1 (Sikarugir)",
+    "d3dmetal": "4.0b3",
+    "msync": true,
+    "dll_overrides": {
+      "concrt140": "native,builtin",
+      "msvcp140": "native,builtin",
+      "msvcp140_1": "native,builtin",
+      "msvcp140_2": "native,builtin",
+      "msvcp140_atomic_wait": "native,builtin",
+      "msvcp140_codecvt_ids": "native,builtin",
+      "vcruntime140": "native,builtin",
+      "vcruntime140_1": "native,builtin"
+    }
+  },
+  "steam": {
+    "app_id": 2075800,
+    "install_dir": "Star Wars Zero Company",
+    "game_exe": "SWZeroCompany/Binaries/Win64/SWZeroCompany.exe"
+  },
+  "tested": {
+    "date": "2026-11-20",
+    "mac": "M3 Max",
+    "macos": "27.2.1",
+    "result": "Game starts in DirectX 12 through D3DMetal at 3440x1440 borderless; player reports it looks good. Clean exit and Steam Cloud upload not yet checked"
+  }
+}

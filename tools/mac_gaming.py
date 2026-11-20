@@ -18,31 +18,32 @@ from configure_nrftw import device_settings, steam_values
 
 ROOT = Path(__file__).resolve().parent.parent
 PROFILES = ROOT / "profiles"
-GAME_LAUNCH = re.compile(
-    r'^\[([^]]+)\] AppID 1371980 adding PID (\d+) as a tracked process .*NoRestForTheWicked\.exe'
-)
-GAME_EXIT = re.compile(
-    r'^\[([^]]+)\] AppID 1371980 no longer tracking PID (\d+), exit code (-?\d+)'
-)
-CLOUD_UPLOAD = re.compile(
-    r'^\[([^]]+)\] \[AppID 1371980\] Upload complete, result OK'
-)
+def steam_log_patterns(app_id: int, game_exe: str) -> tuple[re.Pattern, re.Pattern, re.Pattern]:
+    exe = re.escape("\\" + game_exe.replace("/", "\\"))
+    launch = re.compile(
+        rf'^\[([^]]+)\] AppID {app_id} adding PID (\d+) as a tracked process .*{exe}"'
+    )
+    exit_ = re.compile(rf'^\[([^]]+)\] AppID {app_id} no longer tracking PID (\d+), exit code (-?\d+)')
+    upload = re.compile(rf'^\[([^]]+)\] \[AppID {app_id}\] Upload complete, result OK')
+    return launch, exit_, upload
 
 
-def recent_game_exits(log: str, count: int = 3) -> list[tuple[str, int]]:
+def recent_game_exits(
+    log: str, launch: re.Pattern, exit_: re.Pattern, count: int = 3
+) -> list[tuple[str, int]]:
     game_pids = set()
     exits = []
     for line in log.splitlines():
-        if match := GAME_LAUNCH.search(line):
+        if match := launch.search(line):
             game_pids.add(match.group(2))
-        elif (match := GAME_EXIT.search(line)) and match.group(2) in game_pids:
+        elif (match := exit_.search(line)) and match.group(2) in game_pids:
             exits.append((match.group(1), int(match.group(3))))
             game_pids.remove(match.group(2))
     return exits[-count:]
 
 
-def latest_cloud_upload(log: str) -> str | None:
-    matches = [match.group(1) for line in log.splitlines() if (match := CLOUD_UPLOAD.search(line))]
+def latest_cloud_upload(log: str, upload: re.Pattern) -> str | None:
+    matches = [match.group(1) for line in log.splitlines() if (match := upload.search(line))]
     return matches[-1] if matches else None
 
 
@@ -66,7 +67,7 @@ def load_profiles() -> dict[str, dict]:
     return result
 
 
-def doctor_nrf(profile: dict, games_dir: Path) -> None:
+def doctor_steam_wrapper(profile: dict, games_dir: Path) -> None:
     app = games_dir / profile["runner"]["app_name"]
     print("Wrapper:", app)
     if not app.is_dir():
@@ -86,12 +87,15 @@ def doctor_nrf(profile: dict, games_dir: Path) -> None:
     print("  Wine engine:", version.read_text().strip() if version.is_file() else "unknown")
     steam = prefix / "drive_c/Program Files (x86)/Steam"
     print("  Windows Steam:", "found" if (steam / "steam.exe").is_file() else "missing")
-    game = steam / "steamapps/common" / profile["steam"]["install_dir"] / "NoRestForTheWicked.exe"
+    app_id = profile["steam"]["app_id"]
+    game_exe = profile["steam"]["game_exe"]
+    launch, exit_, upload = steam_log_patterns(app_id, game_exe)
+    game = steam / "steamapps/common" / profile["steam"]["install_dir"] / game_exe
     print("  Game files:", "found" if game.is_file() else "missing")
     configs = sorted((steam / "userdata").glob("*/config/localconfig.vdf"))
     if len(configs) == 1:
         try:
-            overlay, options = steam_values(configs[0].read_text())
+            overlay, options = steam_values(configs[0].read_text(), app_id)
             print("  Game overlay:", overlay)
             print("  Launch options:", options)
         except ValueError:
@@ -101,12 +105,17 @@ def doctor_nrf(profile: dict, games_dir: Path) -> None:
     else:
         print("  Steam game settings: missing; sign in first")
     reg = prefix / "user.reg"
-    settings = device_settings(reg.read_text()) if reg.is_file() else None
-    print("  LockedCursor:", settings.get("LockedCursor") if settings else "not created yet")
+    if profile["slug"] == "no-rest-for-the-wicked":
+        settings = device_settings(reg.read_text()) if reg.is_file() else None
+        print("  LockedCursor:", settings.get("LockedCursor") if settings else "not created yet")
+    overrides = profile["runner"].get("dll_overrides", {})
+    if overrides and reg.is_file():
+        missing = [dll for dll, mode in overrides.items() if f'"{dll}"="{mode}"' not in reg.read_text()]
+        print("  DLL overrides:", "OK" if not missing else "missing " + ", ".join(missing))
     logs = steam / "logs"
     game_log = logs / "gameprocess_log.txt"
     if game_log.is_file():
-        exits = recent_game_exits(game_log.read_text(errors="replace"))
+        exits = recent_game_exits(game_log.read_text(errors="replace"), launch, exit_)
         for date, code in exits:
             detail = " (Windows access violation)" if code == -1073741819 else ""
             print(f"  Game exit: {date}, code {code}{detail}")
@@ -114,7 +123,7 @@ def doctor_nrf(profile: dict, games_dir: Path) -> None:
             print("  Game exit: none recorded")
     cloud_log = logs / "cloud_log.txt"
     if cloud_log.is_file():
-        upload = latest_cloud_upload(cloud_log.read_text(errors="replace"))
+        upload = latest_cloud_upload(cloud_log.read_text(errors="replace"), upload)
         print("  Last successful Cloud upload:", upload or "none recorded")
 
 
@@ -155,7 +164,7 @@ def main() -> int:
         rosetta = subprocess.run(["arch", "-x86_64", "/usr/bin/true"], check=False).returncode == 0
         print("Rosetta 2:", "available" if rosetta else "missing")
     if profile["runner"]["kind"] == "sikarugir":
-        doctor_nrf(profile, games_dir)
+        doctor_steam_wrapper(profile, games_dir)
     else:
         print("Custom runtime: follow", PROFILES / args.slug / "README.md")
     return 0
