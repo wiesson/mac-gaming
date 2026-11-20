@@ -23,8 +23,8 @@ LAUNCH_OPTIONS = "-force-d3d11 -screen-fullscreen 0 -screen-width 1280 -screen-h
 DEVICE_KEY = "DeviceSettings_Key_h2764392784"
 
 
-def app_block(text: str) -> tuple[int, int, str]:
-    match = re.search(r'(?m)^(?P<indent>[ \t]*)"1371980"[ \t]*\r?\n[ \t]*\{', text)
+def app_block(text: str, app_id: int | str = APP_ID) -> tuple[int, int, str]:
+    match = re.search(rf'(?m)^(?P<indent>[ \t]*)"{app_id}"[ \t]*\r?\n[ \t]*\{{', text)
     if not match:
         raise ValueError("Steam game settings block is missing; sign in and open the library first")
     depth = 1
@@ -47,8 +47,8 @@ def app_block(text: str) -> tuple[int, int, str]:
     raise ValueError("Steam game settings block is incomplete")
 
 
-def steam_values(text: str) -> tuple[str | None, str | None]:
-    start, end, _ = app_block(text)
+def steam_values(text: str, app_id: int | str = APP_ID) -> tuple[str | None, str | None]:
+    start, end, _ = app_block(text, app_id)
     block = text[start:end]
     def value(key: str) -> str | None:
         match = re.search(rf'(?m)^[ \t]*"{key}"[ \t]*"([^"\r\n]*)"', block)

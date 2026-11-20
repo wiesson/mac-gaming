@@ -10,6 +10,7 @@ Things worth a look later. Nothing here is set up yet.
 - Requirements: **a paid CrossOver** (26.3 or Preview 20261006; NotProton copies and patches it, with no free Wine option). It is pinned to Steam client builds 1788652215 or 1790121765.
 - Recommended setup: Rosetta runtime as the default, FEX per game.
 - Known issues (2026-10-11): the Play button disappears after a Steam restart (#92), Gatekeeper blocks it on macOS 27.2 (#52), no winecfg or DLL overrides (#65), and some games fail (Diablo IV #77).
+- Update 2026-11-20: v1.2.7 (about weekly releases, 2.6k stars) adds support for the current Steam client beta and a plugin system. The README still requires CrossOver and says "support for alternatives to CrossOver itself is not planned". Valve has made no official Steam Play announcement for macOS. FX Steam Launcher (SteamOS ARM64 in a VM on Apple Silicon) exists but is still experimental.
 - Our take: it is about convenience, not FPS. It uses the same D3DMetal layer as our Sikarugir setup. It's only worth trying if we buy CrossOver anyway.
 
 ## NRftW: loud fans

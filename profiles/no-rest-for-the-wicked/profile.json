@@ -14,6 +14,7 @@
   "steam": {
     "app_id": 1371980,
     "install_dir": "NoRestForTheWicked",
+    "game_exe": "NoRestForTheWicked.exe",
     "launch_options": "-force-d3d11 -screen-fullscreen 0 -screen-width 1280 -screen-height 720",
     "overlay_enabled": true,
     "steam_input_override": "disabled"
